@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Models;
+using WebApplication1.Repository;
 using WebApplication1.Repository.Interfaces;
 
 namespace WebApplication1.Controllers
@@ -22,6 +23,21 @@ namespace WebApplication1.Controllers
         {
             Race race = await repository.GetByIdAsync(id);
             return View(race);
+        }
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(Race race)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(race);
+            }
+            repository.Add(race);
+            return RedirectToAction("Index");
         }
     }
 }
