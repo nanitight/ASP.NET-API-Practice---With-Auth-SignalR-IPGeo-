@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+
+    <div class="container">
+        <div>
+            <label>Name:</label>
+            <input type="text" id="displayName"/>
+        </div>
+        <div class="mt-5">
+            <div class = "container flex-column align-content-md-start" id="discussion"></div>
+            <input type="text" id="message" />
+            <input type="button" id="sendmessage" value="Send" />
+        </div>
+
+    </div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+<script>
+
+    var connection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
+
+    connection.start().catch(function (err){
+        return console.error(err.toString());
+    });
+
+    document.getElementById("sendmessage").addEventListener("click",function (event){
+        console.log("clicked") ;
+        var user = document.getElementById("displayName").value;
+        var message = document.getElementById("message").value;
+        connection.invoke("SendMessage",user,message).catch(function(err){
+            return console.error(err.toString());
+        }) ;
+        event.preventDefault();
+    }) ;
+
+    connection.on("ReceiveMessage",function (user,message){
+        var enconded = user + ": "+message ;
+        var li = document.createElement("li");
+        li.textContent = enconded ;
+        document.getElementById("discussion").appendChild(li);
+    });
+
+</script>
+</div>
