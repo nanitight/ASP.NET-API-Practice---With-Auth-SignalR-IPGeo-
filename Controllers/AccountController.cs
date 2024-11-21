@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using RunGroupTUT.Data;
 using RunGroupTUT.ViewModels;
 using WebApplication1.Data;
 using WebApplication1.Models;
@@ -52,5 +53,51 @@ namespace RunGroupTUT.Controllers
 
 
 		}
-	}
+
+        public IActionResult Register()
+        {
+            var response = new RegisterViewModel();
+            return View(response);
+        }
+
+		[HttpPost]
+		public async Task<IActionResult> Register(RegisterViewModel registerDTO)
+		{
+			if (!ModelState.IsValid)
+			{
+				return View(registerDTO);
+			}
+			
+			var user = await userManager.FindByEmailAsync(registerDTO.EmailAddress);
+			if (user != null)
+			{
+				TempData["Error"] = "This email is already in use";
+				return View(registerDTO);
+			}
+			var newUser = new AppUser
+			{
+				Email = registerDTO.EmailAddress,
+				UserName = registerDTO.EmailAddress,
+			};
+			var newUserResponse = await userManager.CreateAsync(newUser,registerDTO.Password);
+			if (newUserResponse.Succeeded)
+			{
+				await userManager.AddToRoleAsync(newUser, UserRoles.User);
+			}
+			else
+			{
+				TempData["Error"] = newUserResponse.Errors.ElementAt(0).Description;
+				return View(registerDTO);
+			}
+
+            return RedirectToAction("Index", "Race");
+        }
+
+        [HttpPost]
+		public async Task<IActionResult> Logout()
+		{
+			await signInManager.SignOutAsync();
+			return RedirectToAction("Index","Race");
+		}
+    }
 }
