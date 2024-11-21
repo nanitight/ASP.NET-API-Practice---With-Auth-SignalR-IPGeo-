@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RunGroupTUT.Interfaces;
 using WebApplication1.Data;
 using WebApplication1.Models;
-using WebApplication1.Repository.Interfaces;
 
 namespace WebApplication1.Repository
 {
-	public class ClubRepository : IClubRepository
+    public class ClubRepository : IClubRepository
 	{
 		private readonly AppDBContext context;
 
@@ -33,7 +33,11 @@ namespace WebApplication1.Repository
 
 		public async Task<Club> GetByIdAsync(int id)
 		{
-			return await context.Clubs.Include(i => i.Address).FirstOrDefaultAsync(c=> c.Id == id);
+			return await context.Clubs.Include(i => i.Address).FirstOrDefaultAsync(c => c.Id == id);
+		}
+		public async Task<Club> GetByIdAsyncNoTracking(int id)
+		{
+			return await context.Clubs.Include(i => i.Address).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
 		}
 
 		public async Task<IEnumerable<Club>> GetClubByCity(string city)

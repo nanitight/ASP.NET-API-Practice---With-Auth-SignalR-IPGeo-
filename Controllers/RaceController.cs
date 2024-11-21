@@ -1,18 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RunGroupTUT.Interfaces;
+using RunGroupTUT.ViewModels;
 using WebApplication1.Models;
 using WebApplication1.Repository;
-using WebApplication1.Repository.Interfaces;
 
 namespace WebApplication1.Controllers
 {
     public class RaceController : Controller
     {
 		private readonly IRaceRepository repository;
+        private readonly IPhotoService photoService;
 
-		public RaceController(IRaceRepository repository)
+        public RaceController(IRaceRepository repository,IPhotoService photoService)
         {
 			this.repository = repository;
-		}
+            this.photoService = photoService;
+        }
         public async Task<IActionResult> Index()
         {
             IEnumerable<Race> races = await repository.GetAll();
@@ -30,14 +33,86 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Race race)
+        public async Task<IActionResult> Create(CreateRaceViewModel raceDTO)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return View(race);
+                var result = await photoService.AddPhotoAsync(raceDTO.Image);
+                Race newRace = new Race
+                {
+                    Title = raceDTO.Title,
+                    Description = raceDTO.Description,
+                    Image = result.Url.ToString(),
+                    Address = new Address{
+                        Street = raceDTO.Address.Street,
+                        City = raceDTO.Address.City,
+                        State = raceDTO.Address.State,
+                    }
+                };
+                repository.Add(newRace);
+                return RedirectToAction("Index");
             }
-            repository.Add(race);
-            return RedirectToAction("Index");
+            else
+            {
+                ModelState.AddModelError("", "Photo Upload error");
+            }
+            return View(raceDTO);
         }
-    }
+		public async Task<IActionResult> Edit(int id)
+		{
+			var race = await repository.GetByIdAsync(id);
+			if (race == null) return View("Error");
+			var raceDTO = new EditRaceViewModel
+			{
+				Title = race.Title,
+				Description = race.Description,
+				RaceCategory = race.RaceCategory,
+				AddressId = race.AddressId,
+				Address = race.Address,
+				URL = race.Image
+			};
+			return View(raceDTO);
+
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Edit(int id, EditRaceViewModel raceDTO)
+		{
+			if (!ModelState.IsValid)
+			{
+				ModelState.AddModelError("", "Failed to edit race");
+				return View("Edit", raceDTO);
+			}
+			var userRace = await repository.GetByIdAsyncNoTracking(id);
+			if (userRace != null)
+			{
+				try
+				{
+					var RES = await photoService.DeletePhotoAsync(userRace.Image);
+				}
+				catch (Exception ex)
+				{
+					ModelState.AddModelError("", "could not delete old photo.");
+					return View(raceDTO);
+				}
+				var photoResult = await photoService.AddPhotoAsync(raceDTO.Image);
+
+				var race = new Race
+				{
+					Id = id,
+					Title = raceDTO.Title,
+					Description = raceDTO.Description,
+					Image = photoResult.Url.ToString(),
+					AddressId = raceDTO.AddressId,
+					Address = raceDTO.Address,
+					RaceCategory = raceDTO.RaceCategory
+				};
+
+				repository.Update(race);
+				return RedirectToAction("Index");
+			}
+			else { return View(raceDTO); }
+		}
+
+	}
 }

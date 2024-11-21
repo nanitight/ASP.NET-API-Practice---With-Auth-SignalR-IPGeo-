@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RunGroupTUT.Interfaces;
+using RunGroupTUT.ViewModels;
 using WebApplication1.Data;
 using WebApplication1.Models;
-using WebApplication1.Repository.Interfaces;
 
 namespace WebApplication1.Repository
 {
-	public class RaceRepository : IRaceRepository
+    public class RaceRepository : IRaceRepository
 	{
 		private readonly AppDBContext context;
 
@@ -34,6 +35,11 @@ namespace WebApplication1.Repository
 		public async Task<Race> GetByIdAsync(int id)
 		{
 			return await context.Races.Include(i=>i.Address).FirstOrDefaultAsync(c=> c.Id == id);
+		}
+
+		public async Task<Race> GetByIdAsyncNoTracking(int id)
+		{
+			return await context.Races.Include(i => i.Address).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
 		}
 
 		public async Task<IEnumerable<Race>> GetRaceByCity(string city)

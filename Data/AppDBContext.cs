@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RunGroupTUT.ViewModels;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data
