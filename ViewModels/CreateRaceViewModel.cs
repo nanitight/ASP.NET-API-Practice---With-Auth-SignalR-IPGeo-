@@ -17,6 +17,7 @@ namespace RunGroupTUT.ViewModels
 
         public RaceCategory RaceCategory { get; set; }
 
+        public string AppUserId{ get; set;}
     }
 
 }

@@ -11,6 +11,13 @@ namespace WebApplication1.Models
         public int? Milage { get; set; }
         [ForeignKey("Address")]
         public int? AddressId { get; set; }
+        /*
+         * To fix null issue, database had to be migrated.
+         * Using Package Manager Console.
+         * `Add-Migration Name
+         * `Update-Database
+         
+         */
         public Address? Address { get; set; }
 
         public ICollection<Race> Races { get; set; }

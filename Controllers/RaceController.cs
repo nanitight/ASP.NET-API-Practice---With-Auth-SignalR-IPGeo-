@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RunGroupTUT;
 using RunGroupTUT.Interfaces;
 using RunGroupTUT.ViewModels;
 using WebApplication1.Models;
@@ -10,11 +11,13 @@ namespace WebApplication1.Controllers
     {
 		private readonly IRaceRepository repository;
         private readonly IPhotoService photoService;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
-        public RaceController(IRaceRepository repository,IPhotoService photoService)
+        public RaceController(IRaceRepository repository,IPhotoService photoService,IHttpContextAccessor httpContextAccessor)
         {
 			this.repository = repository;
             this.photoService = photoService;
+            this.httpContextAccessor = httpContextAccessor;
         }
         public async Task<IActionResult> Index()
         {
@@ -29,7 +32,12 @@ namespace WebApplication1.Controllers
         }
         public IActionResult Create()
         {
-            return View();
+			var userId = httpContextAccessor.HttpContext?.User.GetUserId();
+			var createRaceDTO = new CreateRaceViewModel
+			{
+				AppUserId = userId
+			};
+            return View(createRaceDTO);
         }
 
         [HttpPost]
@@ -43,6 +51,7 @@ namespace WebApplication1.Controllers
                     Title = raceDTO.Title,
                     Description = raceDTO.Description,
                     Image = result.Url.ToString(),
+					AppUserId = raceDTO.AppUserId,
                     Address = new Address{
                         Street = raceDTO.Address.Street,
                         City = raceDTO.Address.City,

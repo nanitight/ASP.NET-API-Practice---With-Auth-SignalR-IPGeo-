@@ -82,7 +82,7 @@ namespace RunGroupTUT.Controllers
 			var newUserResponse = await userManager.CreateAsync(newUser,registerDTO.Password);
 			if (newUserResponse.Succeeded)
 			{
-				await userManager.AddToRoleAsync(newUser, UserRoles.User);
+				await userManager.AddToRoleAsync(newUser, UserRoles.Admin);
 			}
 			else
 			{

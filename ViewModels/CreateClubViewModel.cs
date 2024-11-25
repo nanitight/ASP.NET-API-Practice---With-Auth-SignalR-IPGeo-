@@ -14,5 +14,7 @@ namespace RunGroupTUT.ViewModels
         public ClubCategory ClubCategory { get; set; }
 
         public Address Address { get; set; }
+
+        public string AppUserId { get; set; }
     }
 }

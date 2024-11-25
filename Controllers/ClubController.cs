@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RunGroupTUT;
 using RunGroupTUT.Interfaces;
 using RunGroupTUT.ViewModels;
 using WebApplication1.Data;
@@ -11,11 +12,13 @@ namespace WebApplication1.Controllers
     {
 		private readonly IClubRepository clubRepository;
         private readonly IPhotoService photoService;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
-        public ClubController(IClubRepository repository, IPhotoService photoService)
+        public ClubController(IClubRepository repository, IPhotoService photoService, IHttpContextAccessor httpContext)
         {
 			this.clubRepository = repository;
             this.photoService = photoService;
+            httpContextAccessor = httpContext;
         }
         public async Task<IActionResult> Index()
         {
@@ -32,9 +35,14 @@ namespace WebApplication1.Controllers
 
         public IActionResult Create()
         {
-            return View();
+            var currUserId = httpContextAccessor.HttpContext.User.GetUserId();
+            var createClubViewModel = new CreateClubViewModel
+            {
+                AppUserId = currUserId
+            };
+            return View(createClubViewModel);
         }
-
+        [HttpPost]
         public async Task<IActionResult> Create(CreateClubViewModel clubDTO)
         {
             if (ModelState.IsValid)
@@ -45,6 +53,7 @@ namespace WebApplication1.Controllers
                     Title = clubDTO.Title,
                     Description = clubDTO.Description,
                     Image = result.Url.ToString(),
+                    appUserId = clubDTO.AppUserId,
                     Address = new Address{
                         Street = clubDTO.Address.Street,
                         City = clubDTO.Address.City,
@@ -70,6 +79,7 @@ namespace WebApplication1.Controllers
                 Title = club.Title,
                 Description = club.Description,
                 ClubCategory = club.ClubCategory,
+                
                 AddressId = club.AddressId,
                 Address = club.Address,
                 URL = club.Image
