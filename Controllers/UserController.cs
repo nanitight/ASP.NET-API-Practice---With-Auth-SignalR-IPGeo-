@@ -27,6 +27,7 @@ namespace RunGroupTUT.Controllers
                     Milage = user.Milage,
                     Pace = user.Pace,
                     UserName = user.UserName,
+                    ProfileImageUrl = user.ProfileImageUrl
                 };
                 result.Add(userVModel);
             }

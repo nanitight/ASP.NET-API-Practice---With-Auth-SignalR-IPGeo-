@@ -6,7 +6,7 @@ namespace WebApplication1.Models
     public class AppUser  : IdentityUser
     {
         //[Key]
-        //public string Id { get; set; }
+        public string Id { get; set; }
         public int? Pace{ get; set; }
         public int? Milage { get; set; }
         [ForeignKey("Address")]
@@ -20,7 +20,10 @@ namespace WebApplication1.Models
          */
         public Address? Address { get; set; }
 
-        public ICollection<Race> Races { get; set; }
+		public string? ProfileImageUrl { get; set; }
+		public string? City { get; set; }
+		public string? State { get; set; }
+		public ICollection<Race> Races { get; set; }
 
         public ICollection<Club> Clubs { get; set; }
     }
