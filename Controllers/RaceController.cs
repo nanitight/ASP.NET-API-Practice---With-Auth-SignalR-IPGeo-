@@ -123,5 +123,20 @@ namespace WebApplication1.Controllers
 			else { return View(raceDTO); }
 		}
 
+		public async Task<IActionResult> Delete(int id)
+		{
+			var race = await repository.GetByIdAsync(id);
+			if (race == null) return View("Error");
+			return View(race);
+		}
+
+		[HttpPost,ActionName("Delete")]
+		public async Task<IActionResult> DeleteClub(int id)
+		{
+			var raceDetails = await repository.GetByIdAsync(id);
+			if (raceDetails == null) return View("Error");
+			repository.Delete(raceDetails);
+			return RedirectToAction("Index");
+		}
 	}
 }
